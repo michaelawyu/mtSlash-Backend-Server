@@ -1,12 +1,26 @@
 from flask import Flask, render_template, g, request, redirect, url_for, jsonify
 from sqlalchemy import *
 from flask_restful import Resource, Api, reqparse
+from bs4 import BeautifulSoup
 import plugin_userauthentication
+import plugin_search
+import init_cookies
 import json
+import requests
 
 app = Flask(__name__)
 api = Api(app)
 
+# Set Constants (Search URL)
+SEARCH_URL = 'http://mtslash.org/search.php'
+
+# Set Constants (Payload for Basic Search)
+payload_for_basic_search = {}
+payload_for_basic_search['formhash'] = 'b6ba6cb8'
+payload_for_basic_search['searchsubmit'] = 'yes'
+payload_for_basic_search['srchtxt'] = ''
+
+# Load Settings from File
 f = open('settings.config','r')
 settingsInFile = f.readlines()
 
@@ -19,9 +33,13 @@ for line in settingsInFile:
 	except:
 		settings[items[0]] = items[1]
 
-parser = reqparse.RequestParser()
-parser.add_argument('username')
-parser.add_argument('password')
+# Initialize Cookies
+cookies = init_cookies.get_cookies()
+
+# Initialize a Parser For User Authentication 
+parser_for_userauthentication = reqparse.RequestParser()
+parser_for_userauthentication.add_argument('username')
+parser_for_userauthentication.add_argument('password')
 
 @app.route('/about')
 def about():
@@ -53,7 +71,7 @@ class CheckServerStatus(Resource):
 
 class UserAuthentication(Resource):
 	def post(self):
-		args = parser.parse_args()
+		args = parser_for_userauthentication.parse_args()
 		username = args['username']
 		password = args['password']
 		ifAuthenticationPassed = plugin_userauthentication.authenticate(username, password)
@@ -62,8 +80,13 @@ class UserAuthentication(Resource):
 		else:
 			return 'FAILED'
 
+class BasicSearch(Resource):
+	def post(self):
+		raise NotImplementedError
+
 api.add_resource(CheckServerStatus, '/serverstatus')
 api.add_resource(UserAuthentication, '/userauthentication')
+api.add_resource(BasicSearch, '/basicsearch')
 
 if __name__=='__main__':
 	app.debug=True
