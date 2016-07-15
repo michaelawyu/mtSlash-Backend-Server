@@ -1,5 +1,7 @@
 def get_cookies():
-	cookies = {}
+	cookies = []
+	
+	#Cookie under the Account 'mobilesearchexp'
 	cookie = {}
 	cookie['QNTU_2132_saltkey'] = 'CIApea0a'
 	cookie['QNTU_2132_lastvisit'] = '1468330864'
@@ -9,7 +11,7 @@ def get_cookies():
 	cookie['QNTU_2132_lip'] = '104.250.129.219%2C1467975160'
 	cookie['QNTU_2132_sid'] = 'pWPcDX'
 	cookie['QNTU_2132_lastact'] = '1468335137%09home.php%09spacecp'
-
-	cookies['mobilesearchexp'] = cookie
-
+	
+	cookies.append(cookie)
+	
 	return cookies

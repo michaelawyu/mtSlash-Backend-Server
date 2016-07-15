@@ -5,8 +5,10 @@ from bs4 import BeautifulSoup
 import plugin_userauthentication
 import plugin_search
 import init_cookies
+import init_res
 import json
 import requests
+import re
 
 app = Flask(__name__)
 api = Api(app)
@@ -36,10 +38,17 @@ for line in settingsInFile:
 # Initialize Cookies
 cookies = init_cookies.get_cookies()
 
+# Initialize Collection of Regular Expressions
+res = init_res.get_res()
+
 # Initialize a Parser For User Authentication 
 parser_for_userauthentication = reqparse.RequestParser()
 parser_for_userauthentication.add_argument('username')
 parser_for_userauthentication.add_argument('password')
+
+# Initialize a Parser for Basic Search
+parser_for_basic_search = reqparse.RequestParser()
+parser_for_basic_search.add_argument('keyword')
 
 @app.route('/about')
 def about():
@@ -58,11 +67,11 @@ def privacypolicy():
 	return render_template('privacypolicy.html')
 
 @app.route('/whatsnew')
-def privacypolicy():
+def whatsnew():
 	return render_template('whatsnew.html')
 
 @app.route('/userexpimprovproj')
-def privacypolicy():
+def userexpimprovproj():
 	return render_template('userexpimprovproj.html')
 
 class CheckServerStatus(Resource):
@@ -82,7 +91,24 @@ class UserAuthentication(Resource):
 
 class BasicSearch(Resource):
 	def post(self):
-		raise NotImplementedError
+		args = parser_for_basic_search.parse_args()
+		keyword = args['keyword']
+		# TO BE IMPLEMENTED: Randomize the Usage of Cookies
+		cookie = cookies[0]
+		html_data = plugin_search.retrieve_search_result(SEARCH_URL = SEARCH_URL, keyword = keyword, payload = payload_for_basic_search, cookie = cookie)
+		parsed_search_results = plugin_search.parse_html(html_data = html_data, res = res)
+		return jsonify(**parsed_search_results)
+
+	# For Testing Purposes Only
+	def get(self):
+		keyword = 'wesker'
+		##keyword = args['keyword']
+		# TO BE IMPLEMENTED: Randomize the Usage of Cookies
+		cookie = cookies[0]
+		html_data = plugin_search.retrieve_search_result(SEARCH_URL = SEARCH_URL, keyword = keyword, payload = payload_for_basic_search, cookie = cookie)
+		parsed_search_results = plugin_search.parse_html(html_data = html_data, res = res)
+		return jsonify(results = parsed_search_results)
+
 
 api.add_resource(CheckServerStatus, '/serverstatus')
 api.add_resource(UserAuthentication, '/userauthentication')
