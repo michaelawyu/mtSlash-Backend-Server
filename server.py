@@ -9,9 +9,14 @@ import init_res
 import json
 import requests
 import re
+import hashlib
+from constants import *
 
 app = Flask(__name__)
 api = Api(app)
+
+# Set Engine for Database Access
+engine = create_engine('mysql://mtSlashDevAPIAcc:mtS1ashDEVDBPass@localhost/mtSlashDevTestbedDB')
 
 # Set Constants (Search URL)
 SEARCH_URL = 'http://mtslash.org/search.php'
@@ -50,6 +55,17 @@ parser_for_userauthentication.add_argument('password')
 parser_for_basic_search = reqparse.RequestParser()
 parser_for_basic_search.add_argument('keyword')
 
+# Connect to Database Before a Request
+@app.before_request
+def before_request():
+	g.conn=engine.connect()
+
+# Disconnect from Database (if Applicable) After a Request
+@app.teardown_request
+def teardown_request(exception):
+	if g.conn is not None:
+		g.conn.close()
+
 @app.route('/about')
 def about():
 	return render_template('about.html')
@@ -83,11 +99,9 @@ class UserAuthentication(Resource):
 		args = parser_for_userauthentication.parse_args()
 		username = args['username']
 		password = args['password']
-		ifAuthenticationPassed = plugin_userauthentication.authenticate(username, password)
-		if ifAuthenticationPassed == True:
-			return 'OK'
-		else:
-			return 'FAILED'
+		result = plugin_userauthentication.authenticate(username, password, g, members_ucenter, member_discuz, forbidden_groups)
+		print(result[0])
+		return jsonify(result = result[0], user_info = result[1])
 
 class BasicSearch(Resource):
 	def post(self):
