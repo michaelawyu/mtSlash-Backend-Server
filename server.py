@@ -4,6 +4,7 @@ from flask_restful import Resource, Api, reqparse
 from bs4 import BeautifulSoup
 import plugin_userauthentication
 import plugin_search
+import plugin_sectioninfo
 import init_cookies
 import init_res
 import json
@@ -11,6 +12,7 @@ import requests
 import re
 import hashlib
 from constants import *
+import time
 
 app = Flask(__name__)
 api = Api(app)
@@ -54,6 +56,12 @@ parser_for_userauthentication.add_argument('password')
 # Initialize a Parser for Basic Search
 parser_for_basic_search = reqparse.RequestParser()
 parser_for_basic_search.add_argument('keyword')
+
+# Timer for Refreshing Cached Section Info
+timer_for_refreshing_cached_section_info = time.time()
+
+# Cached Section Info
+section_info = []
 
 # Connect to Database Before a Request
 @app.before_request
@@ -123,10 +131,21 @@ class BasicSearch(Resource):
 		parsed_search_results = plugin_search.parse_html(html_data = html_data, res = res)
 		return jsonify(results = parsed_search_results)
 
+class SectionInfo(Resource):
+	def get(self):
+		global section_info
+		if len(section_info) == 0 or time.time() - timer_for_refreshing_cached_section_info >= 3600:
+			result_tuple = plugin_sectioninfo.retrieve_section_info(related_forum_ids, g, forum_sections)
+			# threads, posts, todayposts
+			section_info = [result_tuple[0], result_tuple[1], result_tuple[2]]
+
+		return jsonify(threads = section_info[0], posts = section_info[1], todayposts = section_info[2])
+
 
 api.add_resource(CheckServerStatus, '/serverstatus')
 api.add_resource(UserAuthentication, '/userauthentication')
 api.add_resource(BasicSearch, '/basicsearch')
+api.add_resource(SectionInfo, '/sectioninfo')
 
 if __name__=='__main__':
 	app.debug=True
