@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 import plugin_userauthentication
 import plugin_search
 import plugin_sectioninfo
+import plugin_retrievethreads
 import init_cookies
 import init_res
 import json
@@ -18,7 +19,7 @@ app = Flask(__name__)
 api = Api(app)
 
 # Set Engine for Database Access
-engine = create_engine('mysql://mtSlashDevAPIAcc:mtS1ashDEVDBPass@localhost/mtSlashDevTestbedDB')
+engine = create_engine('mysql://mtSlashDevAPIAcc:mtS1ashDEVDBPass@localhost/mtSlashDevTestbedDB?charset=utf8')
 
 # Set Constants (Search URL)
 SEARCH_URL = 'http://mtslash.org/search.php'
@@ -56,6 +57,11 @@ parser_for_userauthentication.add_argument('password')
 # Initialize a Parser for Basic Search
 parser_for_basic_search = reqparse.RequestParser()
 parser_for_basic_search.add_argument('keyword')
+
+# Initialize a Parser for Retrieving Threads
+parser_for_retrieving_threads = reqparse.RequestParser()
+parser_for_retrieving_threads.add_argument('fid')
+parser_for_retrieving_threads.add_argument('limit_multiplier')
 
 # Timer for Refreshing Cached Section Info
 timer_for_refreshing_cached_section_info = time.time()
@@ -141,11 +147,27 @@ class SectionInfo(Resource):
 
 		return jsonify(threads = section_info[0], posts = section_info[1], todayposts = section_info[2])
 
+class RetrieveThreads(Resource):
+	def post(self):
+		args = parser_for_retrieving_threads()
+		fid = args['fid']
+		limit_multiplier = args['limit_multiplier']
+		threads = plugin_retrievethreads.retrieve_threads(fid = fid, limit_multiplier = limit_multiplier, g = g, forum_threads = forum_threads)
+		return jsonify(results = threads)
+
+	# For Testing Purpose Only
+	def get(self):
+		fid = 50
+		limit_multiplier = 1
+		threads = plugin_retrievethreads.retrieve_threads(fid = fid, limit_multiplier = limit_multiplier, g = g, forum_threads = forum_threads)
+		return jsonify(results = threads)
+
 
 api.add_resource(CheckServerStatus, '/serverstatus')
 api.add_resource(UserAuthentication, '/userauthentication')
 api.add_resource(BasicSearch, '/basicsearch')
 api.add_resource(SectionInfo, '/sectioninfo')
+api.add_resource(RetrieveThreads, '/retrievethreads')
 
 if __name__=='__main__':
 	app.debug=True
