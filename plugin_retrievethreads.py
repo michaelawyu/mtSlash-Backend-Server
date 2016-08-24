@@ -1,10 +1,17 @@
 from flask import g
 from sqlalchemy import *
 
-def retrieve_threads(fid, limit_multiplier, g, forum_threads):
+def retrieve_threads(fid, sort_id, limit_multiplier, g, forum_threads):
 	threads = []
+	limit_multiplier_as_int = int(limit_multiplier)
+	sort_id_as_int = int(sort_id)
 
-	sql_command = 'SELECT tid, fid, typeid, sortid, author, authorid, CONVERT(subject USING utf8), dateline, lastposter, views, replies FROM %s WHERE fid = %s ORDER BY dateline DESC LIMIT %s  ' % (forum_threads, '%s', 40 * limit_multiplier)
+	if sort_id_as_int == -1:
+		sql_command = 'SELECT tid, fid, typeid, sortid, author, authorid, CONVERT(subject USING utf8), dateline, lastposter, views, replies FROM %s WHERE fid = %s ORDER BY dateline DESC LIMIT %s' % (forum_threads, '%s', 40 * limit_multiplier_as_int)
+	else:
+		sql_command = 'SELECT tid, fid, typeid, sortid, author, authorid, CONVERT(subject USING utf8), dateline, lastposter, views, replies FROM %s WHERE fid = %s AND sortid = %s ORDER BY dateline DESC LIMIT %s' % (forum_threads, '%s', sort_id_as_int, 40 * limit_multiplier_as_int)
+
+	print(sql_command)
 
 	cur = g.conn.execute(sql_command, fid)
 	result_list = cur.fetchall()

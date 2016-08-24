@@ -61,6 +61,7 @@ parser_for_basic_search.add_argument('keyword')
 # Initialize a Parser for Retrieving Threads
 parser_for_retrieving_threads = reqparse.RequestParser()
 parser_for_retrieving_threads.add_argument('fid')
+parser_for_retrieving_threads.add_argument('sort_id')
 parser_for_retrieving_threads.add_argument('limit_multiplier')
 
 # Timer for Refreshing Cached Section Info
@@ -119,7 +120,7 @@ class UserAuthentication(Resource):
 
 class BasicSearch(Resource):
 	def post(self):
-		args = parser_for_basic_search.parse_args()
+		args = parser_for_basic_search.parse_args.parse_args()
 		keyword = args['keyword']
 		# TO BE IMPLEMENTED: Randomize the Usage of Cookies
 		cookie = cookies[0]
@@ -149,17 +150,18 @@ class SectionInfo(Resource):
 
 class RetrieveThreads(Resource):
 	def post(self):
-		args = parser_for_retrieving_threads()
+		args = parser_for_retrieving_threads.parse_args()
 		fid = args['fid']
+		sort_id = args['sort_id']
 		limit_multiplier = args['limit_multiplier']
-		threads = plugin_retrievethreads.retrieve_threads(fid = fid, limit_multiplier = limit_multiplier, g = g, forum_threads = forum_threads)
+		threads = plugin_retrievethreads.retrieve_threads(fid = fid, sort_id = sort_id, limit_multiplier = limit_multiplier, g = g, forum_threads = forum_threads)
 		return jsonify(results = threads)
 
 	# For Testing Purpose Only
 	def get(self):
 		fid = 50
 		limit_multiplier = 1
-		threads = plugin_retrievethreads.retrieve_threads(fid = fid, limit_multiplier = limit_multiplier, g = g, forum_threads = forum_threads)
+		threads = plugin_retrievethreads.retrieve_threads(fid = fid, sort_id = -1, limit_multiplier = limit_multiplier, g = g, forum_threads = forum_threads)
 		return jsonify(results = threads)
 
 
