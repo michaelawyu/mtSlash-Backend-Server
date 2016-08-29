@@ -6,6 +6,7 @@ import plugin_userauthentication
 import plugin_search
 import plugin_sectioninfo
 import plugin_retrievethreads
+import plugin_retrieveposts
 import init_cookies
 import init_res
 import json
@@ -63,6 +64,12 @@ parser_for_retrieving_threads = reqparse.RequestParser()
 parser_for_retrieving_threads.add_argument('fid')
 parser_for_retrieving_threads.add_argument('sort_id')
 parser_for_retrieving_threads.add_argument('limit_multiplier')
+
+# Initialize a Parser for Retrieving Posts
+parser_for_retrieving_posts = reqparse.RequestParser()
+parser_for_retrieving_posts.add_argument('tid')
+parser_for_retrieving_posts.add_argument('author_id')
+parser_for_retrieving_posts.add_argument('limit_multiplier')
 
 # Timer for Refreshing Cached Section Info
 timer_for_refreshing_cached_section_info = time.time()
@@ -161,8 +168,28 @@ class RetrieveThreads(Resource):
 	def get(self):
 		fid = 50
 		limit_multiplier = 1
+		start = time.time()
 		threads = plugin_retrievethreads.retrieve_threads(fid = fid, sort_id = -1, limit_multiplier = limit_multiplier, g = g, forum_threads = forum_threads)
+		length = start - time.time()
+		print(length)
 		return jsonify(results = threads)
+
+class RetrievePosts(Resource):
+	def post(self):
+		args = parser_for_retrieving_posts.parse_args()
+		tid = args['tid']
+		author_id = args['author_id']
+		limit_multiplier = args['limit_multiplier']
+		posts = plugin_retrieveposts.retrieve_posts(tid = tid, author_id = author_id, limit_multiplier = limit_multiplier, g = g, forum_post = forum_posts)
+		return jsonify(results = posts)
+
+	# For Testing Purpose Only
+	def get(self):
+		tid = 6
+		author_id = -1
+		limit_multiplier = 1
+		posts = plugin_retrieveposts.retrieve_posts(tid = tid, author_id = author_id, limit_multiplier = limit_multiplier, g = g, forum_post = forum_posts)
+		return jsonify(results = posts)
 
 
 api.add_resource(CheckServerStatus, '/serverstatus')
@@ -170,6 +197,7 @@ api.add_resource(UserAuthentication, '/userauthentication')
 api.add_resource(BasicSearch, '/basicsearch')
 api.add_resource(SectionInfo, '/sectioninfo')
 api.add_resource(RetrieveThreads, '/retrievethreads')
+api.add_resource(RetrievePosts, '/retrieveposts')
 
 if __name__=='__main__':
 	app.debug=True

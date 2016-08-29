@@ -11,6 +11,7 @@ members_ucenter = 'pre_ucenter_members'
 member_discuz = 'pre_common_member'
 forum_sections = 'pre_forum_forum'
 forum_threads = 'pre_forum_thread'
+forum_posts = 'pre_forum_post'
 
 # IDs (FIDs) of Related Forum Sections
 # Used when Client Requesting Section Info from Server
