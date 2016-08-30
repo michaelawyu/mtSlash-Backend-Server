@@ -8,7 +8,7 @@ def retrieve_posts(tid, author_id, limit_multiplier, g, forum_post):
 	tid_as_int = int(tid)
 
 	if author_id_as_int == -1:
-		sql_command = 'SELECT pid, fid, tid, author, authorid, subject, dateline, message FROM %s WHERE tid = %s ORDER BY dateline DESC LIMIT %s' % (forum_post, '%s', 40 * limit_multiplier_as_int)
+		sql_command = 'SELECT pid, fid, tid, author, authorid, subject, dateline, message FROM %s WHERE tid = %s ORDER BY dateline ASC LIMIT %s' % (forum_post, '%s', 40 * limit_multiplier_as_int)
 	else:
 		sql_command = 'SELECT pid, fid, tid, author, authorid, subject, dateline, message FROM %s WHERE tid = %s AND authorid = %s ORDER BY dateline DESC LIMIT %s' % (forum_threads, '%s', author_id_as_int, 40 * limit_multiplier_as_int)
 
