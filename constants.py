@@ -18,3 +18,12 @@ forum_posts = 'pre_forum_post'
 # Ordered as Displayed in Webpage
 # Secret Gifts in Holiday Season, Movie Fanfic, Movie Fanfic/Avengers, Movie Fanfic/Popular Fandoms, TV Fanfic, TV Fanfic/Sherlock, TV Fanfic/Popular Fandoms, FANART, FANVID, FANBOOK, DISCUSSION, Song, Help Center
 related_forum_ids = [41, 2, 37, 38, 36, 50, 49, 42, 43, 44, 45, 46, 47]
+
+# Search URL
+SEARCH_URL = 'http://mtslash.org/search.php'
+
+# Payload for Basic Search
+payload_for_basic_search = {}
+payload_for_basic_search['formhash'] = 'b6ba6cb8'
+payload_for_basic_search['searchsubmit'] = 'yes'
+payload_for_basic_search['srchtxt'] = ''

@@ -22,6 +22,7 @@ def parse_html(html_data, res):
 	# Load Regular Expressions
 	re_for_extracting_number_of_results = res['extracting_number_of_results']
 	re_for_extracting_number_of_views_and_replies = res['extracting_number_of_views_and_replies']
+	re_for_extracting_search_id = res['extracting_search_id']
 
 	# Parse the Number of Results from html_data
 	number_of_results_raw = soup.h2.em.contents[2]
@@ -37,7 +38,12 @@ def parse_html(html_data, res):
 		result = {}
 		result_raw = results_raw[i]
 		result['tid'] = int(result_raw['id'])
-		result['topic_title'] = result_raw.h3.a.contents[0]
+		topic_title_fragmentized = result_raw.h3.a.contents
+		topic_title = ''
+		for fragment in topic_title_fragmentized:
+			current_part_of_title = fragment.string
+			topic_title = topic_title + current_part_of_title
+		result['topic_title'] = topic_title
 
 		no_of_views_and_replies_raw = unicode(result_raw.find_all('p',class_='xg1')[0].contents[0])
 		no_of_views_and_replies_in_list = re.findall(re_for_extracting_number_of_views_and_replies, no_of_views_and_replies_raw)
@@ -47,9 +53,13 @@ def parse_html(html_data, res):
 		result['no_of_replies'] = int(no_of_replies)
 
 		try:
-			topic_summary_raw = unicode(result_raw.find_all('p',class_ = False)[0].contents[0])
-			topic_summary = topic_summary_raw.replace('\r\n',' ')
-			result['topic_summary'] = topic_summary
+			topic_summary_raw_fragmentized = result_raw.find_all('p',class_ = False)[0].contents
+			topic_summary = ''
+			for fragment in topic_summary_raw_fragmentized:
+				current_part_of_summary = fragment.string	
+				topic_summary = topic_summary + current_part_of_summary
+			topic_summary_without_line_break = topic_summary.replace('\r\n',' ')
+			result['topic_summary'] = topic_summary_without_line_break
 		except:
 			result['topic_summary'] = ''
 
@@ -64,4 +74,17 @@ def parse_html(html_data, res):
 
 		results.append(result)
 
-	return results
+	# Parse the Link of other Pages (searchid)
+	search_id = '-1'
+	links_attached = soup.find_all('div', class_ = 'pg')
+	if len(links_attached) != 0:
+		link_attached_raw = links_attached[0].a
+		link_attached = link_attached_raw['href']
+
+		search_ids_raw = re.findall(re_for_extracting_search_id, link_attached)
+		search_id_raw = search_ids_raw[0]
+		search_id_as_string = str(search_id_raw)
+		search_id_components = search_id_as_string.split('=')
+		search_id = search_id_components[1]
+
+	return (number_of_results, results, search_id)

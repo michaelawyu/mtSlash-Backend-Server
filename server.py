@@ -22,15 +22,6 @@ api = Api(app)
 # Set Engine for Database Access
 engine = create_engine('mysql://mtSlashDevAPIAcc:mtS1ashDEVDBPass@localhost/mtSlashDevTestbedDB?charset=utf8')
 
-# Set Constants (Search URL)
-SEARCH_URL = 'http://mtslash.org/search.php'
-
-# Set Constants (Payload for Basic Search)
-payload_for_basic_search = {}
-payload_for_basic_search['formhash'] = 'b6ba6cb8'
-payload_for_basic_search['searchsubmit'] = 'yes'
-payload_for_basic_search['srchtxt'] = ''
-
 # Load Settings from File
 f = open('settings.config','r')
 settingsInFile = f.readlines()
@@ -127,13 +118,14 @@ class UserAuthentication(Resource):
 
 class BasicSearch(Resource):
 	def post(self):
-		args = parser_for_basic_search.parse_args.parse_args()
+		args = parser_for_basic_search.parse_args()
 		keyword = args['keyword']
+		print(keyword)
 		# TO BE IMPLEMENTED: Randomize the Usage of Cookies
 		cookie = cookies[0]
 		html_data = plugin_search.retrieve_search_result(SEARCH_URL = SEARCH_URL, keyword = keyword, payload = payload_for_basic_search, cookie = cookie)
 		parsed_search_results = plugin_search.parse_html(html_data = html_data, res = res)
-		return jsonify(**parsed_search_results)
+		return jsonify(number_of_results = parsed_search_results[0] ,results = parsed_search_results[1], search_id = parsed_search_results[2])
 
 	# For Testing Purposes Only
 	def get(self):
@@ -143,7 +135,7 @@ class BasicSearch(Resource):
 		cookie = cookies[0]
 		html_data = plugin_search.retrieve_search_result(SEARCH_URL = SEARCH_URL, keyword = keyword, payload = payload_for_basic_search, cookie = cookie)
 		parsed_search_results = plugin_search.parse_html(html_data = html_data, res = res)
-		return jsonify(results = parsed_search_results)
+		return jsonify(number_of_results = parsed_search_results[0] ,results = parsed_search_results[1], search_id = parsed_search_results[2])
 
 class SectionInfo(Resource):
 	def get(self):
