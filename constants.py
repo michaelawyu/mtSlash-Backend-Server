@@ -21,6 +21,7 @@ related_forum_ids = [41, 2, 37, 38, 36, 50, 49, 42, 43, 44, 45, 46, 47]
 
 # Search URL
 SEARCH_URL = 'http://mtslash.org/search.php'
+SEARCH_RESULT_URL = 'http://www.mtslash.org/search.php?mod=forum&searchid=%s&orderby=lastpost&ascdesc=desc&searchsubmit=yes&page=%s' 
 
 # Payload for Basic Search
 payload_for_basic_search = {}

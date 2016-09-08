@@ -11,6 +11,14 @@ def retrieve_search_result(SEARCH_URL, keyword, payload, cookie):
 
 	return html_data
 
+def retrieve_search_result_in_select_page(SEARCH_RESULT_URL, page, search_id, cookie):
+	constructed_search_result_url = SEARCH_RESULT_URL % (search_id, page)
+
+	r = requests.get(constructed_search_result_url, cookies = cookie)
+	html_data = r.text
+
+	return html_data
+
 def parse_html(html_data, res):
 	# lxml Parser Required; Will Switch to Default Parser html.parser if lxml is Unavailable
 	try:
