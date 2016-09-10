@@ -55,7 +55,7 @@ parser_for_basic_search.add_argument('search_id')
 # Initialize a Parser for Retrieving Threads
 parser_for_retrieving_threads = reqparse.RequestParser()
 parser_for_retrieving_threads.add_argument('fid')
-parser_for_retrieving_threads.add_argument('sort_id')
+parser_for_retrieving_threads.add_argument('type_id')
 parser_for_retrieving_threads.add_argument('limit_multiplier')
 
 # Initialize a Parser for Retrieving Posts
@@ -105,6 +105,14 @@ def whatsnew():
 def userexpimprovproj():
 	return render_template('userexpimprovproj.html')
 
+@app.route('/listofsupportedfonts')
+def listofsupportedfonts():
+	return render_template('listofsupportedfonts.html')
+
+@app.route('/addmorefonts')
+def addmorefonts():
+	return render_template('addmorefonts.html')
+
 class CheckServerStatus(Resource):
 	def get(self):
 		return jsonify(**settings)
@@ -115,7 +123,6 @@ class UserAuthentication(Resource):
 		username = args['username']
 		password = args['password']
 		result = plugin_userauthentication.authenticate(username, password, g, members_ucenter, member_discuz, forbidden_groups)
-		print(result[0])
 		return jsonify(result = result[0], user_info = result[1])
 
 class BasicSearch(Resource):
@@ -172,9 +179,9 @@ class RetrieveThreads(Resource):
 	def post(self):
 		args = parser_for_retrieving_threads.parse_args()
 		fid = args['fid']
-		sort_id = args['sort_id']
+		type_id = args['type_id']
 		limit_multiplier = args['limit_multiplier']
-		threads = plugin_retrievethreads.retrieve_threads(fid = fid, sort_id = sort_id, limit_multiplier = limit_multiplier, g = g, forum_threads = forum_threads)
+		threads = plugin_retrievethreads.retrieve_threads(fid = fid, type_id = type_id, limit_multiplier = limit_multiplier, g = g, forum_threads = forum_threads)
 		return jsonify(results = threads)
 
 	# For Testing Purpose Only
@@ -182,7 +189,7 @@ class RetrieveThreads(Resource):
 		fid = 50
 		limit_multiplier = 1
 		start = time.time()
-		threads = plugin_retrievethreads.retrieve_threads(fid = fid, sort_id = -1, limit_multiplier = limit_multiplier, g = g, forum_threads = forum_threads)
+		threads = plugin_retrievethreads.retrieve_threads(fid = fid, type_id = -1, limit_multiplier = limit_multiplier, g = g, forum_threads = forum_threads)
 		length = start - time.time()
 		print(length)
 		return jsonify(results = threads)
