@@ -136,34 +136,40 @@ class BasicSearch(Resource):
 
 		# Return the first page of search result as requested
 		if int(page) == 1 or int(search_id) == -1:
-			html_data = plugin_search.retrieve_search_result(SEARCH_URL = SEARCH_URL, keyword = keyword, payload = payload_for_basic_search, cookie = cookie)
-			parsed_search_results = plugin_search.parse_html(html_data = html_data, res = res)
+			try:
+				html_data = plugin_search.retrieve_search_result(SEARCH_URL = SEARCH_URL, keyword = keyword, payload = payload_for_basic_search, cookie = cookie)
+				parsed_search_results = plugin_search.parse_html(html_data = html_data, res = res)
+			except:
+				abort(404)
 			return jsonify(number_of_results = parsed_search_results[0] ,results = parsed_search_results[1], search_id = parsed_search_results[2])
 
 		# Return more pages of search result as requested
 		if int(page) > 1 and int(search_id) > 0:
-			html_data = plugin_search.retrieve_search_result_in_select_page(SEARCH_RESULT_URL = SEARCH_RESULT_URL, page = page, search_id = search_id, cookie = cookie)
-			parsed_search_results = plugin_search.parse_html(html_data = html_data, res = res)
+			try:
+				html_data = plugin_search.retrieve_search_result_in_select_page(SEARCH_RESULT_URL = SEARCH_RESULT_URL, page = page, search_id = search_id, cookie = cookie)
+				parsed_search_results = plugin_search.parse_html(html_data = html_data, res = res)
+			except:
+				abort(404)
 			return jsonify(number_of_results = parsed_search_results[0] ,results = parsed_search_results[1], search_id = parsed_search_results[2])
 	
 	# For Testing Purposes Only
-#	def get(self):
-#		keyword = 'wesker'
-		# TO BE IMPLEMENTED: Randomize the Usage of Cookies
-#		cookie = cookies[0]
-#		html_data = plugin_search.retrieve_search_result(SEARCH_URL = SEARCH_URL, keyword = keyword, payload = payload_for_basic_search, cookie = cookie)
-#		parsed_search_results = plugin_search.parse_html(html_data = html_data, res = res)
-#		return jsonify(number_of_results = parsed_search_results[0] ,results = parsed_search_results[1], search_id = parsed_search_results[2])
-
-	# For Testing Purposes Only
 	def get(self):
-		page = 2
-		search_id = 565
+		keyword = 'wesker'
+		# TO BE IMPLEMENTED: Randomize the Usage of Cookies
 		cookie = cookies[0]
-
-		html_data = plugin_search.retrieve_search_result_in_select_page(SEARCH_RESULT_URL = SEARCH_RESULT_URL, page = page, search_id = search_id, cookie = cookie)
+		html_data = plugin_search.retrieve_search_result(SEARCH_URL = SEARCH_URL, keyword = keyword, payload = payload_for_basic_search, cookie = cookie)
 		parsed_search_results = plugin_search.parse_html(html_data = html_data, res = res)
 		return jsonify(number_of_results = parsed_search_results[0] ,results = parsed_search_results[1], search_id = parsed_search_results[2])
+
+	# For Testing Purposes Only
+#	def get(self):
+#		page = 2
+#		search_id = 565
+#		cookie = cookies[0]
+
+#		html_data = plugin_search.retrieve_search_result_in_select_page(SEARCH_RESULT_URL = SEARCH_RESULT_URL, page = page, search_id = search_id, cookie = cookie)
+#		parsed_search_results = plugin_search.parse_html(html_data = html_data, res = res)
+#		return jsonify(number_of_results = parsed_search_results[0] ,results = parsed_search_results[1], search_id = parsed_search_results[2])
 
 class SectionInfo(Resource):
 	def get(self):
